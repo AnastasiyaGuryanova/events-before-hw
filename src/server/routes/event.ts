@@ -64,4 +64,17 @@ export const eventRouter = router({
         },
       });
     }),
+  leave: procedure
+    .input(z.object({ id: z.number() }))
+    .use(isAuth)
+    .mutation(({ input, ctx: { user } }) => {
+      return prisma.participation.delete({
+        where: {
+          userId_eventId: {
+            eventId: input.id,
+            userId: user.id,
+          },
+        },
+      });
+    }),
 });
