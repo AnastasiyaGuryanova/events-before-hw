@@ -23,5 +23,9 @@ export default function Event() {
     return "No data";
   }
 
-  return <EventDetail {...data} />;
+  const isAuthor = data.authorId === session.data?.user?.id;
+
+  return (
+    <EventDetail {...data} id={Number(router.query.id)} isAuthor={isAuthor} />
+  );
 }

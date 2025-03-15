@@ -30,6 +30,7 @@ export const eventRouter = router({
           title: true,
           description: true,
           date: true,
+          authorId: true,
           participations: {
             select: {
               user: {
@@ -74,6 +75,28 @@ export const eventRouter = router({
             eventId: input.id,
             userId: user.id,
           },
+        },
+      });
+    }),
+  update: procedure
+    .input(CreateEventSchema.extend({ id: z.number() }))
+    .use(isAuth)
+    .mutation(async ({ input, ctx: { user } }) => {
+      const event = await prisma.event.findUnique({
+        where: { id: input.id },
+        select: { authorId: true },
+      });
+
+      if (event?.authorId !== user.id) {
+        throw new Error("Вы можете редактировать только свои события");
+      }
+
+      return prisma.event.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          description: input.description,
+          date: input.date,
         },
       });
     }),
