@@ -7,14 +7,12 @@ import "@/app/global.css";
 
 function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <SessionProvider session={pageProps.session}>
       <Header />
       <div className="mx-auto max-w-4xl">
-        <SessionProvider session={pageProps.session}>
-          <Component {...pageProps} />
-        </SessionProvider>
+        <Component {...pageProps} />
       </div>
-    </>
+    </SessionProvider>
   );
 }
 

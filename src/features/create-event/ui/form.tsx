@@ -1,20 +1,28 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateEventSchema } from "@/shared/api";
+import { useRouter } from "next/router";
 
 type CreateEventFormProps = {
   onSubmit: (data: CreateEventSchema) => void;
 };
 
 export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<CreateEventSchema>({
     resolver: zodResolver(CreateEventSchema),
     mode: "onChange",
   });
+
+  const handleCancel = () => {
+    reset();
+    router.push("/");
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -106,6 +114,7 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
         <button
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"
+          onClick={handleCancel}
         >
           Отмена
         </button>

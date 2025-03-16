@@ -6,8 +6,17 @@ import { z } from "zod";
 export const eventRouter = router({
   findMany: procedure.query(async ({ ctx: { user } }) => {
     const events = await prisma.event.findMany({
-      include: {
-        participations: true,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        date: true,
+        authorId: true,
+        participations: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -16,13 +25,13 @@ export const eventRouter = router({
       isJoined: participations.some(({ userId }) => userId === user?.id),
     }));
   }),
+
   findUnique: procedure
     .input(
       z.object({
         id: z.number(),
       })
     )
-    .use(isAuth)
     .query(({ input }) => {
       return prisma.event.findUnique({
         where: input,

@@ -15,10 +15,6 @@ export default function Event() {
     return "Loading...";
   }
 
-  if (session.status === "unauthenticated") {
-    return "Forbidden";
-  }
-
   if (!data) {
     return "No data";
   }
