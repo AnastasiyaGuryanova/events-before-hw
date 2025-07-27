@@ -1,14 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateEventSchema } from "@/shared/api";
-import { useRouter } from "next/router";
 
-type CreateEventFormProps = {
-  onSubmit: (data: CreateEventSchema) => void;
+type EditEventFormProps = {
+  event: CreateEventSchema & { id: number };
+  onSubmit: (data: CreateEventSchema & { id: number }) => void;
 };
 
-export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
-  const router = useRouter();
+export const EditEventForm = ({ event, onSubmit }: EditEventFormProps) => {
   const {
     register,
     handleSubmit,
@@ -17,22 +16,24 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
   } = useForm<CreateEventSchema>({
     resolver: zodResolver(CreateEventSchema),
     mode: "onChange",
+    defaultValues: {
+      title: event.title,
+      description: event.description,
+      date: event.date,
+    },
   });
 
-  const handleCancel = () => {
-    reset();
-    router.push("/");
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit((data) => onSubmit({ ...data, id: event.id }))}
+    >
       <div className="space-y-12">
         <div>
           <h2 className="text-base font-semibold leading-7 text-gray-900">
-            Событие
+            Редактирование события
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            Заполните форму для создания события
+            Обновите информацию о событии
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -114,7 +115,6 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
         <button
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"
-          onClick={handleCancel}
         >
           Отмена
         </button>
@@ -122,7 +122,7 @@ export const CreateEventForm = ({ onSubmit }: CreateEventFormProps) => {
           type="submit"
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Создать
+          Сохранить
         </button>
       </div>
     </form>

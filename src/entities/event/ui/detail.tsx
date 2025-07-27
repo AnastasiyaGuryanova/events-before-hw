@@ -1,19 +1,33 @@
 import { RouterOutput } from "@/shared/api";
+import Link from "next/link";
 
-type EventDetailProps = NonNullable<RouterOutput["event"]["findUnique"]>;
+type EventDetailProps = NonNullable<RouterOutput["event"]["findUnique"]> & {
+  id: number;
+  isAuthor: boolean;
+};
 
 export const EventDetail = ({
+  id,
   title,
   description,
   date,
+  isAuthor,
   participations,
 }: EventDetailProps) => {
   return (
     <div>
-      <div className="px-4 sm:px-0">
+      <div className="pt-4 px-4 sm:px-0 flex justify-between items-center">
         <h3 className="text-base font-semibold leading-7 text-gray-900">
           Информация о событии
         </h3>
+        {isAuthor && (
+          <Link
+            href={`/events/edit/${id}`}
+            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+          >
+            Редактировать событие
+          </Link>
+        )}
       </div>
       <div className="mt-6 border-t border-gray-100">
         <dl className="divide-y divide-gray-100">

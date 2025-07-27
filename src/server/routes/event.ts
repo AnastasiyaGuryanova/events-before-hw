@@ -6,8 +6,17 @@ import { z } from "zod";
 export const eventRouter = router({
   findMany: procedure.query(async ({ ctx: { user } }) => {
     const events = await prisma.event.findMany({
-      include: {
-        participations: true,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        date: true,
+        authorId: true,
+        participations: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -16,13 +25,13 @@ export const eventRouter = router({
       isJoined: participations.some(({ userId }) => userId === user?.id),
     }));
   }),
+
   findUnique: procedure
     .input(
       z.object({
         id: z.number(),
       })
     )
-    .use(isAuth)
     .query(({ input }) => {
       return prisma.event.findUnique({
         where: input,
@@ -30,6 +39,7 @@ export const eventRouter = router({
           title: true,
           description: true,
           date: true,
+          authorId: true,
           participations: {
             select: {
               user: {
@@ -61,6 +71,41 @@ export const eventRouter = router({
         data: {
           eventId: input.id,
           userId: user.id,
+        },
+      });
+    }),
+  leave: procedure
+    .input(z.object({ id: z.number() }))
+    .use(isAuth)
+    .mutation(({ input, ctx: { user } }) => {
+      return prisma.participation.delete({
+        where: {
+          userId_eventId: {
+            eventId: input.id,
+            userId: user.id,
+          },
+        },
+      });
+    }),
+  update: procedure
+    .input(CreateEventSchema.extend({ id: z.number() }))
+    .use(isAuth)
+    .mutation(async ({ input, ctx: { user } }) => {
+      const event = await prisma.event.findUnique({
+        where: { id: input.id },
+        select: { authorId: true },
+      });
+
+      if (event?.authorId !== user.id) {
+        throw new Error("Вы можете редактировать только свои события");
+      }
+
+      return prisma.event.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          description: input.description,
+          date: input.date,
         },
       });
     }),
